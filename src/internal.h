@@ -242,6 +242,7 @@ typedef EGLSurface (APIENTRY * PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC)(EGLDisp
 #define OSMESA_COMPAT_PROFILE 0x35
 #define OSMESA_CONTEXT_MAJOR_VERSION 0x36
 #define OSMESA_CONTEXT_MINOR_VERSION 0x37
+#define OSMESA_ES2_PROFILE 0xFF00E2
 
 typedef void* OSMesaContext;
 typedef void (*OSMESAproc)(void);
@@ -253,6 +254,7 @@ typedef int (GLAPIENTRY * PFN_OSMesaMakeCurrent)(OSMesaContext,void*,int,int,int
 typedef int (GLAPIENTRY * PFN_OSMesaGetColorBuffer)(OSMesaContext,int*,int*,int*,void**);
 typedef int (GLAPIENTRY * PFN_OSMesaGetDepthBuffer)(OSMesaContext,int*,int*,int*,void**);
 typedef GLFWglproc (GLAPIENTRY * PFN_OSMesaGetProcAddress)(const char*);
+typedef void (GLAPIENTRY * PFN_OSMesaGetIntegerv)(GLint,GLint*);
 #define OSMesaCreateContextExt _glfw.osmesa.CreateContextExt
 #define OSMesaCreateContextAttribs _glfw.osmesa.CreateContextAttribs
 #define OSMesaDestroyContext _glfw.osmesa.DestroyContext
@@ -260,6 +262,7 @@ typedef GLFWglproc (GLAPIENTRY * PFN_OSMesaGetProcAddress)(const char*);
 #define OSMesaGetColorBuffer _glfw.osmesa.GetColorBuffer
 #define OSMesaGetDepthBuffer _glfw.osmesa.GetDepthBuffer
 #define OSMesaGetProcAddress _glfw.osmesa.GetProcAddress
+#define OSMesaGetIntegerv _glfw.osmesa.GetIntegerv
 
 #define VK_NULL_HANDLE 0
 
@@ -845,6 +848,7 @@ struct _GLFWlibrary
         PFN_OSMesaGetColorBuffer        GetColorBuffer;
         PFN_OSMesaGetDepthBuffer        GetDepthBuffer;
         PFN_OSMesaGetProcAddress        GetProcAddress;
+        PFN_OSMesaGetIntegerv           GetIntegerv;
 
     } osmesa;
 

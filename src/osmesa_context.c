@@ -160,6 +160,8 @@ GLFWbool _glfwInitOSMesa(void)
         _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaGetDepthBuffer");
     _glfw.osmesa.GetProcAddress = (PFN_OSMesaGetProcAddress)
         _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaGetProcAddress");
+    _glfw.osmesa.GetIntegerv = (PFN_OSMesaGetIntegerv)
+        _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaGetIntegerv");
 
     if (!_glfw.osmesa.CreateContextExt ||
         !_glfw.osmesa.DestroyContext ||
@@ -206,9 +208,15 @@ GLFWbool _glfwCreateContextOSMesa(_GLFWwindow* window,
 
     if (ctxconfig->client == GLFW_OPENGL_ES_API)
     {
-        _glfwInputError(GLFW_API_UNAVAILABLE,
-                        "OSMesa: OpenGL ES is not available on OSMesa");
-        return GLFW_FALSE;
+        GLint es2_profile_ext = GLFW_FALSE;
+        if (OSMesaGetIntegerv) {
+            OSMesaGetIntegerv(OSMESA_ES2_PROFILE, &es2_profile_ext);
+        }
+        if (!es2_profile_ext) {
+            _glfwInputError(GLFW_API_UNAVAILABLE,
+                        "OSMesa: missing ES2 profile extension (OSMESA_ES2_PROFILE)");
+            return GLFW_FALSE;
+        }
     }
 
     if (ctxconfig->share)
@@ -223,7 +231,11 @@ GLFWbool _glfwCreateContextOSMesa(_GLFWwindow* window,
         SET_ATTRIB(OSMESA_STENCIL_BITS, fbconfig->stencilBits);
         SET_ATTRIB(OSMESA_ACCUM_BITS, accumBits);
 
-        if (ctxconfig->profile == GLFW_OPENGL_CORE_PROFILE)
+        if (ctxconfig->client == GLFW_OPENGL_ES_API)
+        {
+            SET_ATTRIB(OSMESA_PROFILE, OSMESA_ES2_PROFILE);
+        }
+        else if (ctxconfig->profile == GLFW_OPENGL_CORE_PROFILE)
         {
             SET_ATTRIB(OSMESA_PROFILE, OSMESA_CORE_PROFILE);
         }
