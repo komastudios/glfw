@@ -5,11 +5,13 @@
 extern "C" {
 #endif
 
+typedef void (* GLFWmoduleproc)(void);
+
 typedef void* (* GLFWmoduleopenfun)(const char* path, void* user);
 
 typedef void (* GLFWmoduleclosefun)(void* module, void* user);
 
-typedef GLFWproc (* GLFWmoduleresolvefun)(void* module, const char* name, void* user);
+typedef GLFWmoduleproc (* GLFWmoduleresolvefun)(void* module, const char* name, void* user);
 
 typedef struct GLFWmoduleloader
 {
@@ -25,7 +27,7 @@ GLFWAPI void* glfwPlatformLoaderOpen(const char* path);
 
 GLFWAPI void glfwPlatformLoaderClose(void* module);
 
-GLFWAPI GLFWproc glfwPlatformLoaderResolve(void* module, const char* name);
+GLFWAPI GLFWmoduleproc glfwPlatformLoaderResolve(void* module, const char* name);
 
 #ifdef __cplusplus
 }

@@ -36,7 +36,7 @@ void _glfwModuleLoaderClose(void* module)
         _glfwPlatformFreeModule(module);
 }
 
-GLFWproc _glfwModuleLoaderResolve(void* module, const char* name)
+GLFWmoduleproc _glfwModuleLoaderResolve(void* module, const char* name)
 {
     if (_glfwModuleLoader.resolve)
         return _glfwModuleLoader.resolve(module, name, _glfwModuleLoader.user);
@@ -53,7 +53,7 @@ void glfwPlatformLoaderClose(void* module)
     _glfwPlatformFreeModule(module);
 }
 
-GLFWproc glfwPlatformLoaderResolve(void* module, const char* name)
+GLFWmoduleproc glfwPlatformLoaderResolve(void* module, const char* name)
 {
     return _glfwPlatformGetModuleSymbol(module, name);
 }
