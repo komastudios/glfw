@@ -20,6 +20,8 @@ option(GLFW_BUILD_TESTS "Build the GLFW test programs" ${GLFW_STANDALONE})
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" ON)
 option(GLFW_INSTALL "Generate installation target" ON)
 
+option(GLFW_BUILD_LOADER "Build support for user-provided module loader callbacks" OFF)
+
 include(GNUInstallDirs)
 include(CMakeDependentOption)
 
@@ -140,6 +142,11 @@ endif()
 if (GLFW_INSTALL)
     install(DIRECTORY include/GLFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
             FILES_MATCHING PATTERN glfw3.h PATTERN glfw3native.h)
+
+    if (GLFW_BUILD_LOADER)
+        install(DIRECTORY include/GLFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+                FILES_MATCHING PATTERN glfw3loader.h)
+    endif()
 
     install(FILES "${GLFW_BINARY_DIR}/src/glfw3Config.cmake"
                   "${GLFW_BINARY_DIR}/src/glfw3ConfigVersion.cmake"
