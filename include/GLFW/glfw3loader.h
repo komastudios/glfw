@@ -21,6 +21,12 @@ typedef struct GLFWmoduleloader
 
 GLFWAPI void glfwInitModuleLoader(const GLFWmoduleloader* loader);
 
+GLFWAPI void* glfwPlatformLoaderOpen(const char* path);
+
+GLFWAPI void glfwPlatformLoaderClose(void* module);
+
+GLFWAPI GLFWproc glfwPlatformLoaderResolve(void* module, const char* name);
+
 #ifdef __cplusplus
 }
 #endif

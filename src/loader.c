@@ -43,4 +43,19 @@ GLFWproc _glfwModuleLoaderResolve(void* module, const char* name)
     return _glfwPlatformGetModuleSymbol(module, name);
 }
 
+void* glfwPlatformLoaderOpen(const char* path)
+{
+    return _glfwPlatformLoadModule(path);
+}
+
+void glfwPlatformLoaderClose(void* module)
+{
+    _glfwPlatformFreeModule(module);
+}
+
+GLFWproc glfwPlatformLoaderResolve(void* module, const char* name)
+{
+    return _glfwPlatformGetModuleSymbol(module, name);
+}
+
 #endif // _GLFW_MODULE_LOADER
