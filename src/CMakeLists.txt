@@ -20,6 +20,9 @@ else()
                                 posix_time.c posix_thread.c)
 endif()
 
+target_sources(glfw PRIVATE loader.c)
+target_compile_definitions(glfw PRIVATE _GLFW_MODULE_LOADER)
+
 add_custom_target(update_mappings
     COMMAND "${CMAKE_COMMAND}" -P "${GLFW_SOURCE_DIR}/CMake/GenerateMappings.cmake" mappings.h.in mappings.h
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"

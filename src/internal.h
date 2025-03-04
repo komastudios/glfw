@@ -330,6 +330,12 @@ typedef VkResult (APIENTRY * PFN_vkEnumerateInstanceExtensionProperties)(const c
 #define GLFW_NATIVE_INCLUDE_NONE
 #include "../include/GLFW/glfw3native.h"
 
+#if defined(_GLFW_MODULE_LOADER) && !defined(_GLFW_MODULE_LOADER_SOURCE)
+ #define _glfwPlatformLoadModule _glfwModuleLoaderOpen
+ #define _glfwPlatformFreeModule _glfwModuleLoaderClose
+ #define _glfwPlatformGetModuleSymbol _glfwModuleLoaderResolve
+#endif
+
 // Checks for whether the library has been initialized
 #define _GLFW_REQUIRE_INIT()                         \
     if (!_glfw.initialized)                          \

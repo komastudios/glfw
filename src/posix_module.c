@@ -24,6 +24,7 @@
 //
 //========================================================================
 
+#define _GLFW_MODULE_LOADER_SOURCE
 #include "internal.h"
 
 #if defined(GLFW_BUILD_POSIX_MODULE)
