@@ -250,6 +250,7 @@ typedef void (*OSMESAproc)(void);
 typedef OSMesaContext (GLAPIENTRY * PFN_OSMesaCreateContextExt)(GLenum,GLint,GLint,GLint,OSMesaContext);
 typedef OSMesaContext (GLAPIENTRY * PFN_OSMesaCreateContextAttribs)(const int*,OSMesaContext);
 typedef void (GLAPIENTRY * PFN_OSMesaDestroyContext)(OSMesaContext);
+typedef void (GLAPIENTRY * PFN_OSMesaShutdown)(void);
 typedef int (GLAPIENTRY * PFN_OSMesaMakeCurrent)(OSMesaContext,void*,int,int,int);
 typedef int (GLAPIENTRY * PFN_OSMesaGetColorBuffer)(OSMesaContext,int*,int*,int*,void**);
 typedef int (GLAPIENTRY * PFN_OSMesaGetDepthBuffer)(OSMesaContext,int*,int*,int*,void**);
@@ -850,6 +851,7 @@ struct _GLFWlibrary
         PFN_OSMesaCreateContextExt      CreateContextExt;
         PFN_OSMesaCreateContextAttribs  CreateContextAttribs;
         PFN_OSMesaDestroyContext        DestroyContext;
+        PFN_OSMesaShutdown              Shutdown;
         PFN_OSMesaMakeCurrent           MakeCurrent;
         PFN_OSMesaGetColorBuffer        GetColorBuffer;
         PFN_OSMesaGetDepthBuffer        GetDepthBuffer;

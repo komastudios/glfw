@@ -152,6 +152,8 @@ GLFWbool _glfwInitOSMesa(void)
         _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaCreateContextAttribs");
     _glfw.osmesa.DestroyContext = (PFN_OSMesaDestroyContext)
         _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaDestroyContext");
+    _glfw.osmesa.Shutdown = (PFN_OSMesaShutdown)
+        _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaShutdown");
     _glfw.osmesa.MakeCurrent = (PFN_OSMesaMakeCurrent)
         _glfwPlatformGetModuleSymbol(_glfw.osmesa.handle, "OSMesaMakeCurrent");
     _glfw.osmesa.GetColorBuffer = (PFN_OSMesaGetColorBuffer)
@@ -184,6 +186,8 @@ void _glfwTerminateOSMesa(void)
 {
     if (_glfw.osmesa.handle)
     {
+        if (_glfw.osmesa.Shutdown)
+            _glfw.osmesa.Shutdown();
         _glfwPlatformFreeModule(_glfw.osmesa.handle);
         _glfw.osmesa.handle = NULL;
     }
