@@ -127,6 +127,7 @@ typedef const GLubyte* (APIENTRY * PFNGLGETSTRINGIPROC)(GLenum,GLuint);
 #define EGL_RGB_BUFFER 0x308e
 #define EGL_SURFACE_TYPE 0x3033
 #define EGL_WINDOW_BIT 0x0004
+#define EGL_PBUFFER_BIT 0x0001
 #define EGL_RENDERABLE_TYPE 0x3040
 #define EGL_OPENGL_ES_BIT 0x0001
 #define EGL_OPENGL_ES2_BIT 0x0004
@@ -140,6 +141,8 @@ typedef const GLubyte* (APIENTRY * PFNGLGETSTRINGIPROC)(GLenum,GLuint);
 #define EGL_SAMPLES 0x3031
 #define EGL_OPENGL_ES_API 0x30a0
 #define EGL_OPENGL_API 0x30a2
+#define EGL_WIDTH 0x3057
+#define EGL_HEIGHT 0x3056
 #define EGL_NONE 0x3038
 #define EGL_RENDER_BUFFER 0x3086
 #define EGL_SINGLE_BUFFER 0x3085
@@ -205,6 +208,7 @@ typedef EGLContext (APIENTRY * PFN_eglCreateContext)(EGLDisplay,EGLConfig,EGLCon
 typedef EGLBoolean (APIENTRY * PFN_eglDestroySurface)(EGLDisplay,EGLSurface);
 typedef EGLBoolean (APIENTRY * PFN_eglDestroyContext)(EGLDisplay,EGLContext);
 typedef EGLSurface (APIENTRY * PFN_eglCreateWindowSurface)(EGLDisplay,EGLConfig,EGLNativeWindowType,const EGLint*);
+typedef EGLSurface (APIENTRY * PFN_eglCreatePbufferSurface)(EGLDisplay,EGLConfig,const EGLint*);
 typedef EGLBoolean (APIENTRY * PFN_eglMakeCurrent)(EGLDisplay,EGLSurface,EGLSurface,EGLContext);
 typedef EGLBoolean (APIENTRY * PFN_eglSwapBuffers)(EGLDisplay,EGLSurface);
 typedef EGLBoolean (APIENTRY * PFN_eglSwapInterval)(EGLDisplay,EGLint);
@@ -221,6 +225,7 @@ typedef GLFWglproc (APIENTRY * PFN_eglGetProcAddress)(const char*);
 #define eglDestroySurface _glfw.egl.DestroySurface
 #define eglDestroyContext _glfw.egl.DestroyContext
 #define eglCreateWindowSurface _glfw.egl.CreateWindowSurface
+#define eglCreatePbufferSurface _glfw.egl.CreatePbufferSurface
 #define eglMakeCurrent _glfw.egl.MakeCurrent
 #define eglSwapBuffers _glfw.egl.SwapBuffers
 #define eglSwapInterval _glfw.egl.SwapInterval
@@ -835,6 +840,7 @@ struct _GLFWlibrary
         PFN_eglDestroySurface       DestroySurface;
         PFN_eglDestroyContext       DestroyContext;
         PFN_eglCreateWindowSurface  CreateWindowSurface;
+        PFN_eglCreatePbufferSurface CreatePbufferSurface;
         PFN_eglMakeCurrent          MakeCurrent;
         PFN_eglSwapBuffers          SwapBuffers;
         PFN_eglSwapInterval         SwapInterval;

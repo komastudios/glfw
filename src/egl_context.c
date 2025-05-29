@@ -133,8 +133,11 @@ static GLFWbool chooseEGLConfig(const _GLFWctxconfig* ctxconfig,
         if (getEGLConfigAttrib(n, EGL_COLOR_BUFFER_TYPE) != EGL_RGB_BUFFER)
             continue;
 
-        // Only consider window EGLConfigs
-        if (!(getEGLConfigAttrib(n, EGL_SURFACE_TYPE) & EGL_WINDOW_BIT))
+        // Only consider window EGLConfigs (or pbuffer for null platform)
+        int surfaceBit = EGL_WINDOW_BIT;
+        if (_glfw.platform.platformID == GLFW_PLATFORM_NULL)
+            surfaceBit = EGL_PBUFFER_BIT;
+        if (!(getEGLConfigAttrib(n, EGL_SURFACE_TYPE) & surfaceBit))
             continue;
 
 #if defined(_GLFW_X11)
@@ -143,9 +146,22 @@ static GLFWbool chooseEGLConfig(const _GLFWctxconfig* ctxconfig,
             XVisualInfo vi = {0};
 
             // Only consider EGLConfigs with associated Visuals
+            // NOTE: ANGLE with Vulkan backend may not provide X11 visual IDs
             vi.visualid = getEGLConfigAttrib(n, EGL_NATIVE_VISUAL_ID);
             if (!vi.visualid)
-                continue;
+            {
+                // Check if this is ANGLE by examining the EGL version string
+                const char* version = eglQueryString(_glfw.egl.display, 0x3054); // EGL_VERSION
+                if (version && strstr(version, "ANGLE") != NULL)
+                {
+                    // For ANGLE, allow configs without visual IDs
+                    // ANGLE uses Vulkan/Metal/D3D backends that don't need X11 visuals
+                }
+                else
+                {
+                    continue;
+                }
+            }
 
             if (fbconfig->transparent)
             {
@@ -420,6 +436,8 @@ GLFWbool _glfwInitEGL(void)
         _glfwPlatformGetModuleSymbol(_glfw.egl.handle, "eglDestroyContext");
     _glfw.egl.CreateWindowSurface = (PFN_eglCreateWindowSurface)
         _glfwPlatformGetModuleSymbol(_glfw.egl.handle, "eglCreateWindowSurface");
+    _glfw.egl.CreatePbufferSurface = (PFN_eglCreatePbufferSurface)
+        _glfwPlatformGetModuleSymbol(_glfw.egl.handle, "eglCreatePbufferSurface");
     _glfw.egl.MakeCurrent = (PFN_eglMakeCurrent)
         _glfwPlatformGetModuleSymbol(_glfw.egl.handle, "eglMakeCurrent");
     _glfw.egl.SwapBuffers = (PFN_eglSwapBuffers)
@@ -442,6 +460,7 @@ GLFWbool _glfwInitEGL(void)
         !_glfw.egl.DestroySurface ||
         !_glfw.egl.DestroyContext ||
         !_glfw.egl.CreateWindowSurface ||
+        !_glfw.egl.CreatePbufferSurface ||
         !_glfw.egl.MakeCurrent ||
         !_glfw.egl.SwapBuffers ||
         !_glfw.egl.SwapInterval ||
@@ -710,18 +729,33 @@ GLFWbool _glfwCreateContextEGL(_GLFWwindow* window,
 
     SET_ATTRIB(EGL_NONE, EGL_NONE);
 
-    native = _glfw.platform.getEGLNativeWindow(window);
-    // HACK: ANGLE does not implement eglCreatePlatformWindowSurfaceEXT
-    //       despite reporting EGL_EXT_platform_base
-    if (_glfw.egl.platform && _glfw.egl.platform != EGL_PLATFORM_ANGLE_ANGLE)
+    if (_glfw.platform.platformID == GLFW_PLATFORM_NULL)
     {
+        // For null platform, create a pbuffer surface instead of window surface
+        EGLint pbufferAttribs[] = {
+            EGL_WIDTH, window->videoMode.width ? window->videoMode.width : 640,
+            EGL_HEIGHT, window->videoMode.height ? window->videoMode.height : 480,
+            EGL_NONE
+        };
+        
         window->context.egl.surface =
-            eglCreatePlatformWindowSurfaceEXT(_glfw.egl.display, config, native, attribs);
+            eglCreatePbufferSurface(_glfw.egl.display, config, pbufferAttribs);
     }
     else
     {
-        window->context.egl.surface =
-            eglCreateWindowSurface(_glfw.egl.display, config, native, attribs);
+        native = _glfw.platform.getEGLNativeWindow(window);
+        // HACK: ANGLE does not implement eglCreatePlatformWindowSurfaceEXT
+        //       despite reporting EGL_EXT_platform_base
+        if (_glfw.egl.platform && _glfw.egl.platform != EGL_PLATFORM_ANGLE_ANGLE)
+        {
+            window->context.egl.surface =
+                eglCreatePlatformWindowSurfaceEXT(_glfw.egl.display, config, native, attribs);
+        }
+        else
+        {
+            window->context.egl.surface =
+                eglCreateWindowSurface(_glfw.egl.display, config, native, attribs);
+        }
     }
 
     if (window->context.egl.surface == EGL_NO_SURFACE)
@@ -850,6 +884,21 @@ GLFWbool _glfwChooseVisualEGL(const _GLFWwndconfig* wndconfig,
 
     eglGetConfigAttrib(_glfw.egl.display, native,
                        EGL_NATIVE_VISUAL_ID, &visualID);
+
+    if (visualID == 0)
+    {
+        // ANGLE with Vulkan backend doesn't provide X11 visual IDs
+        // Use a default visual instead
+        const char* version = eglQueryString(_glfw.egl.display, 0x3054); // EGL_VERSION
+        if (version && strstr(version, "ANGLE") != NULL)
+        {
+            // For ANGLE, use the default visual
+            int screen = DefaultScreen(_glfw.x11.display);
+            *visual = DefaultVisual(_glfw.x11.display, screen);
+            *depth = DefaultDepth(_glfw.x11.display, screen);
+            return GLFW_TRUE;
+        }
+    }
 
     desired.screen = _glfw.x11.screen;
     desired.visualid = visualID;
