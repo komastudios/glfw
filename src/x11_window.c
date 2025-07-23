@@ -3127,7 +3127,9 @@ EGLNativeDisplayType _glfwGetEGLNativeDisplayX11(void)
 
 EGLNativeWindowType _glfwGetEGLNativeWindowX11(_GLFWwindow* window)
 {
-    if (_glfw.egl.platform)
+    // ANGLE uses eglCreateWindowSurface which expects the window handle directly,
+    // not a pointer to it
+    if (_glfw.egl.platform && _glfw.egl.platform != EGL_PLATFORM_ANGLE_ANGLE)
         return &window->x11.handle;
     else
         return (EGLNativeWindowType) window->x11.handle;
