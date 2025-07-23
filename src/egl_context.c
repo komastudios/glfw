@@ -146,22 +146,9 @@ static GLFWbool chooseEGLConfig(const _GLFWctxconfig* ctxconfig,
             XVisualInfo vi = {0};
 
             // Only consider EGLConfigs with associated Visuals
-            // NOTE: ANGLE with Vulkan backend may not provide X11 visual IDs
             vi.visualid = getEGLConfigAttrib(n, EGL_NATIVE_VISUAL_ID);
             if (!vi.visualid)
-            {
-                // Check if this is ANGLE by examining the EGL version string
-                const char* version = eglQueryString(_glfw.egl.display, 0x3054); // EGL_VERSION
-                if (version && strstr(version, "ANGLE") != NULL)
-                {
-                    // For ANGLE, allow configs without visual IDs
-                    // ANGLE uses Vulkan/Metal/D3D backends that don't need X11 visuals
-                }
-                else
-                {
-                    continue;
-                }
-            }
+                continue;
 
             if (fbconfig->transparent)
             {
